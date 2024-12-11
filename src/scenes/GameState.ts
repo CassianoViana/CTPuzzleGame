@@ -17,24 +17,26 @@ export default class GameState {
     this.setItemNumber(itemNumber);
     let resposta = new RespostaItemProgramacao()
     resposta.tempoEmSegundos = -1
-    resposta.contadorUsoLixeira = 0
-    resposta.contadorUsoDebug = 0
+    //resposta.contadorUsoLixeira = 0
+    //resposta.contadorUsoDebug = 0
     resposta.contadorUsoPlay = 0
-    resposta.contadorUsoStop = 0
-    resposta.caminhoPercorrido = []
-    resposta.caminhoPercorridoTexto = ""
+    //resposta.contadorUsoStop = 0
+    //resposta.caminhoPercorrido = []
+    //resposta.caminhoPercorridoTexto = ""
     resposta.finalizou = false
     resposta.ambiente = isAndroidAmbient() ? "celular" : "computador"
     this.setResponse(resposta);
     this.initializeStartTime()
   }
 
+  
   pushMove(position: { x: number; y: number; }) {
     let response = this.getResponse()
-    response.caminhoPercorrido.push(position)
-    response.caminhoPercorridoTexto = response.caminhoPercorrido.map(position => `(${position.x},${position.y})`).join('')
+    //response.caminhoPercorrido.push(position)
+    //response.caminhoPercorridoTexto = response.caminhoPercorrido.map(position => `(${position.x},${position.y})`).join('')
     this.setResponse(response)
   }
+    
 
   setFinished() {
     let response = this.getResponse()

@@ -31,7 +31,7 @@ export const Logger = {
     console.error(values.join(' '))
   },
   clear: () => {
-    //console.clear()
+   
   }
 }
 
