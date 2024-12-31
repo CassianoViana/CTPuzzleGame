@@ -45,6 +45,7 @@ export default class MazePhasesLoader {
     this.tutorial = new TutorialHelper(scene, codeEditor);
   }
 
+  //Aqui é carregado, se vier da plataforma, prioriza este, se não, carrega o hardcoded
   async load(gameParams: GameParams): Promise<MazePhasesLoader> {
     this.testApplicationService = new TestApplicationService(gameParams)
     let phases: MazePhasesLoader;
@@ -65,6 +66,7 @@ export default class MazePhasesLoader {
     return phases
   }
 
+  //as fases estão em um array
   private async loadPlaygroundTestItem(): Promise<MazePhasesLoader> {
     let item = await this.testApplicationService.instantiatePlaygroundItem<MecanicaRope>();
     const mazePhase = this.convertMecanicaRopeToPhase(item);
@@ -87,6 +89,12 @@ export default class MazePhasesLoader {
     phase.mecanicaRope = mecanicaRope;
 
     phase.setupTutorialsAndObjectsPositions = () => {
+
+      phase.polygonPoints = phase.mecanicaRope.polygonPoints.map(p => {
+        return { x: p.x, y: p.y }
+      })
+
+      
       phase.obstacles = new Matrix(
         this.scene,
         MatrixMode.ISOMETRIC,
@@ -94,13 +102,16 @@ export default class MazePhasesLoader {
         this.gridCenterX, this.gridCenterY, this.gridCellWidth
       );
 
-
+      
       phase.ground = new Matrix(
         this.scene,
         MatrixMode.ISOMETRIC,
         phase.mecanicaRope.mapa,
         this.gridCenterX, this.gridCenterY, this.gridCellWidth
         );
+     
+
+
 
       phase.skipPhaseMessage = mecanicaRope.mensagemAoPularFase || DEFAULT_SKIP_MESSAGE
       phase.exitPhaseMessage = mecanicaRope.mensagemAoSairDoJogo || DEFAULT_EXIT_MESSAGE
@@ -122,6 +133,7 @@ export default class MazePhasesLoader {
       })
       this.tutorial.buildTutorial(phase, tutorialSteps)
     }
+
     return phase
   }
 

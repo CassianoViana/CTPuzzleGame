@@ -18,6 +18,7 @@ export class RespostaItemProgramacao {
   //caminhoPercorrido: { x: number, y: number }[] = []
   //caminhoPercorridoTexto:string = ""
   finalizou = false
+  polygonPoints: { x: number, y: number }[] = []
 
   adicionarTentativa(comandosUtilizados: Comando[]) {
     //this.comandosUtilizados = comandosUtilizados

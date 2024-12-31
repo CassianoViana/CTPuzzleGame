@@ -134,14 +134,40 @@ export default class Game extends Scene {
     this.sounds = globalSounds
     this.createGrid(26, 22)
 
+    this.grid = new AlignGrid(this, 26, 22, this.game.config.width as number, this.game.config.height as number);
+
+    this.grid.show(0.4);
+
+    this.grid.showPoints();
+
     this.grid.addImage(0, 0, 'background', this.grid.cols, this.grid.rows);
     this.input.setDefaultCursor('pointer');
     this.codeEditor = new CodeEditor(this, this.sounds, this.grid);
     this.messageBox = new MessageBox(this, this.grid)
     this.messageBox.onFinishTalk = () => {
       let isReplaying = this.gameState.isReplayingPhase(this.currentPhase.itemId)
-      this.playPhase(this.currentPhase, { muteInstructions: true, clearResponseState:!isReplaying })
+      this.playPhase(this.currentPhase, { muteInstructions: true, clearResponseState: !isReplaying })
     }
+
+    /*
+    // Definir os pontos do polígono
+    const points = [
+      { x: 0, y: 0 },
+      { x: 100, y: 0 },
+      { x: 100, y: 400 },
+      { x: 0, y: 400 }
+    ];
+
+    // Calcular o centro
+    const centerX = (points[0].x + points[2].x) / 2;
+    const centerY = (points[0].y + points[2].y) / 2;
+
+    // Criar o polígono
+    const polygon = this.add.polygon(0 + centerX, 0 + centerX, points, 0xB0E0E6).setOrigin(0.5, 0.5);
+
+    // Posicionar o polígono na célula (3, 12)
+    this.grid.placeAt(3, 12, polygon);
+    */
 
     this.showLoading();
     this.phasesLoader = await this.loadPhases();
@@ -535,7 +561,7 @@ export default class Game extends Scene {
   }
 
   playNextPhase() {
-    if(this.currentPhase){
+    if (this.currentPhase) {
       this.gameState.setReplayingPhase(this.currentPhase.itemId, false)
     }
     const phase = this.phasesLoader.getNextPhase();
@@ -605,6 +631,42 @@ export default class Game extends Scene {
       this.dude.setBatteryGainOnCharge(this.currentPhase.batteryGainOnCapture);
 
       this.codeEditor.prepare(playPhaseOptions);
+
+    /*
+          // Definir os pontos do polígono
+    const points = [
+      { x: 0, y: 0 },
+      { x: 100, y: 0 },
+      { x: 100, y: 400 },
+      { x: 0, y: 400 }
+    ];
+
+    // Calcular o centro
+    const centerX = (points[0].x + points[2].x) / 2;
+    const centerY = (points[0].y + points[2].y) / 2;
+
+    // Criar o polígono
+    const polygon = this.add.polygon(0 + centerX, 0 + centerX, points, 0xB0E0E6).setOrigin(0.5, 0.5);
+
+    // Posicionar o polígono na célula (3, 12)
+    this.grid.placeAt(3, 12, polygon);
+    */
+   
+
+      // Adicionar o código para criar o polígono
+      const points = this.currentPhase.polygonPoints;
+      if (points && points.length > 0) {
+        const centerX = (points[0].x + points[2].x) / 2;
+        const centerY = (points[0].y + points[2].y) / 2;  
+
+        const polygon = this.add.polygon(0 + centerX, 0 + centerX, points, 0xB0E0E6).setOrigin(0.5, 0.5);
+
+        const scale = this.grid.scale;
+        polygon.setScale(scale);
+        
+        this.grid.placeAt(3, 12, polygon);
+      }
+
       this.currentPhase.showTutorialActionsIfExists();
       this.addTestCommands(this.currentPhase)
 

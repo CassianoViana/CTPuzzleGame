@@ -46,6 +46,7 @@ export default class MazePhase {
   batteryDecreaseOnEachMove: number = 1
   batteryGainOnCapture: number = 1;
   commands: Array<CommandName[]> = [];
+  polygonPoints: { x: number, y: number }[] = [];
 
   constructor(scene: Scene, codeEditor: CodeEditor) {
     this.scene = scene;

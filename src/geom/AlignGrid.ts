@@ -54,6 +54,17 @@ export default class AlignGrid {
     this.graphics.strokePath();
   }
 
+  showPoints() {
+    for (let i = 0; i < this.cols; i++) {
+      for (let j = 0; j < this.rows; j++) {
+        const x = i * this.cellWidth + this.cellWidth / 2;
+        const y = j * this.cellHeight + this.cellHeight / 2;
+        this.scene.add.circle(x, y, 5, 0x0000ff); // Desenha um ponto azul
+        this.scene.add.text(x - 10, y - 10, `${i},${j}`, { color: '#0000ff' }); // Adiciona texto com as coordenadas
+      }
+    }
+  }
+
   addImage(x: number, y: number, key: string, colspan: number = null, rowspan: number = null): Phaser.GameObjects.Image {
     let image = this.scene.add.image(0, 0, key);
     this.placeAt(x, y, image, colspan, rowspan);

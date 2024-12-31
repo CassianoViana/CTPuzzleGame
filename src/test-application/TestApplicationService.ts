@@ -142,6 +142,7 @@ export default class TestApplicationService {
     setItem("participation", participation)
   }
 
+  //Aqui faz o envio das respostas
   async sendResponse(responseToSend: { itemId: number, response: RespostaItemProgramacao }) {
     let urlToSendResponses = this.getParticipation().urlToSendResponses
     if (urlToSendResponses) {
