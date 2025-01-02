@@ -49,12 +49,14 @@ export default class MazePhasesLoader {
   async load(gameParams: GameParams): Promise<MazePhasesLoader> {
     this.testApplicationService = new TestApplicationService(gameParams)
     let phases: MazePhasesLoader;
+    let phasePoligon: MazePhasesLoader;
     try {
       if (gameParams.isPlaygroundTest()) {
         phases = await this.loadPlaygroundTestItem();
       }
       if (gameParams.isTestApplication()) {
         phases = this.loadTestApplication();
+        phasePoligon = this.loadTestApplication();
       }
       if (phases == null) {
         throw new Error('empty phases');
