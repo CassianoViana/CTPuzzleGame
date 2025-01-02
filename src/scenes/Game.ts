@@ -561,11 +561,15 @@ export default class Game extends Scene {
   }
 
   playNextPhase() {
+    debugger
     if (this.currentPhase) {
+      debugger
       this.gameState.setReplayingPhase(this.currentPhase.itemId, false)
     }
+    debugger
     const phase = this.phasesLoader.getNextPhase();
     this.playPhase(phase, { clearCodeEditor: true, clearResponseState: true });
+    debugger
   }
 
   replayCurrentPhase(options: PlayPhaseOptions =
@@ -578,6 +582,7 @@ export default class Game extends Scene {
   }
 
   async playPhase(phase: MazePhase, playPhaseOptions: PlayPhaseOptions) {
+    debugger
     this.playBackgroundMusic()
     if (!phase) {
       if (this.testApplicationService.isPlayground()) {
@@ -587,6 +592,7 @@ export default class Game extends Scene {
     }
 
     if (phase != this.currentPhase) {
+      debugger
       this.initializeCodeEditorProgrammingAreas()
 
     }
@@ -599,19 +605,22 @@ export default class Game extends Scene {
     }
 
     if (this.currentPhase) {
-
+      debugger
       let itemId = this.currentPhase.itemId
       if (playPhaseOptions.clearResponseState) {
         this.gameState.initializeResponse(itemId);
       }
       this.testApplicationService.saveCurrentPlayingPhase(itemId)
       this.updateLabelCurrentPhase(itemId)
-
-      this.currentPhase.setupMatrixAndTutorials()
+      //na linha 616 ele busca as informações do poligono
+      const MatrixAndTutorials = this.currentPhase.setupMatrixAndTutorials()
+      console.log('MatrixAndTutorials', MatrixAndTutorials)
       this.dude.matrix = this.currentPhase.obstacles;
       this.dude.speedFactor = this.gameState.getSpeedFactor()
       const obstacles = this.currentPhase.obstacles
+      console.log('obstacles', obstacles)
       const ground = this.currentPhase.ground
+      console.log('ground', ground)
 
       this.groundMazeModel.clear();
       this.obstaclesMazeModel.clearKeepingInModel(this.dude.character);
@@ -632,30 +641,12 @@ export default class Game extends Scene {
 
       this.codeEditor.prepare(playPhaseOptions);
 
-    /*
-          // Definir os pontos do polígono
-    const points = [
-      { x: 0, y: 0 },
-      { x: 100, y: 0 },
-      { x: 100, y: 400 },
-      { x: 0, y: 400 }
-    ];
-
-    // Calcular o centro
-    const centerX = (points[0].x + points[2].x) / 2;
-    const centerY = (points[0].y + points[2].y) / 2;
-
-    // Criar o polígono
-    const polygon = this.add.polygon(0 + centerX, 0 + centerX, points, 0xB0E0E6).setOrigin(0.5, 0.5);
-
-    // Posicionar o polígono na célula (3, 12)
-    this.grid.placeAt(3, 12, polygon);
-    */
-   
-
       // Adicionar o código para criar o polígono
       const points = this.currentPhase.polygonPoints;
+      console.log('points', points)
+      console.log('points.length', points.length)
       if (points && points.length > 0) {
+        debugger
         const centerX = (points[0].x + points[2].x) / 2;
         const centerY = (points[0].y + points[2].y) / 2;  
 
