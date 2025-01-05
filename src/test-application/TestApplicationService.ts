@@ -123,6 +123,7 @@ export default class TestApplicationService {
     setItem('public-test-applications', testApplications);
   }
 
+  //aqui busca os dados do json
   async loadApplicationFromDataUrl(user: User) {
     try {
       let urlToGetTestApplication = this.gameParams.dataUrl;

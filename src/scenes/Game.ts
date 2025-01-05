@@ -51,6 +51,7 @@ export const DEPTH_OVERLAY_PANEL_TUTORIAL = 50
 
 export default class Game extends Scene {
 
+  private currentPolygon: Phaser.GameObjects.Polygon;
   codeEditor: CodeEditor
   currentObject: GameObjects.Image;
   dude: Dude
@@ -313,9 +314,9 @@ export default class Game extends Scene {
       this.replayCurrentPhase();
     }
 
-    this.codeEditor.setOnBlinkBtnStep((blinked) => {
-      this.dude.highlightNextMove(blinked)
-    })
+    //this.codeEditor.setOnBlinkBtnStep((blinked) => {
+    //  this.dude.highlightNextMove(blinked)
+    //})
 
     this.codeEditor.onClickStepByStep = () => {
       this.gameState.registerDebugUse()
@@ -549,8 +550,11 @@ export default class Game extends Scene {
     debugger
     const phase = this.phasesLoader.getNextPhase();
     this.playPhase(phase, { clearCodeEditor: true, clearResponseState: true });
+    this.desenhaPoligono(phase);
     debugger
   }
+
+
 
   replayCurrentPhase(options: PlayPhaseOptions =
     {
@@ -559,6 +563,34 @@ export default class Game extends Scene {
     }) {
     this.dude.stop(true);
     this.playPhase(this.currentPhase, options)
+  }
+
+  private clearPolygon() {
+    if (this.currentPolygon) {
+      this.currentPolygon.clear();
+      this.currentPolygon = null;
+    }
+  }
+
+  async desenhaPoligono(phase: MazePhase) {
+    this.currentPhase = phase;
+    debugger
+    if (this.currentPhase) {
+
+      const points = this.currentPhase.polygonPoints;
+      if (points && points.length > 0) {
+        const centerX = (points[0].x + points[2].x) / 2;
+        const centerY = (points[0].y + points[2].y) / 2;
+
+        const polygon = this.add.polygon(0 + centerX, 0 + centerX, points, 0xB0E0E6).setOrigin(0.5, 0.5);
+
+        const scale = this.grid.scale;
+        polygon.setScale(scale);
+
+        this.grid.placeAt(3, 12, polygon);
+      }
+
+    }
   }
 
   async playPhase(phase: MazePhase, playPhaseOptions: PlayPhaseOptions) {
@@ -573,8 +605,7 @@ export default class Game extends Scene {
 
     if (phase != this.currentPhase) {
       debugger
-      this.initializeCodeEditorProgrammingAreas()
-
+      //this.initializeCodeEditorProgrammingAreas()
     }
 
     this.currentPhase?.clearTutorials()
@@ -595,41 +626,7 @@ export default class Game extends Scene {
       //na linha 616 ele busca as informações do poligono
       const MatrixAndTutorials = this.currentPhase.setupMatrixAndTutorials()
       console.log('MatrixAndTutorials', MatrixAndTutorials)
-      this.dude.matrix = this.currentPhase.obstacles;
-      this.dude.speedFactor = this.gameState.getSpeedFactor()
-      const obstacles = this.currentPhase.obstacles
-      console.log('obstacles', obstacles)
-      const ground = this.currentPhase.ground
-      console.log('ground', ground)
-
-      this.groundMazeModel.clear();
-      this.obstaclesMazeModel.clearKeepingInModel(this.dude.character);
-      this.groundMazeModel.setMatrixOfObjects(ground);
-      this.obstaclesMazeModel.setMatrixOfObjects(obstacles);
-
-      let { row, col } = this.currentPhase.dudeStartPosition;
-      this.obstaclesMazeModel.putSprite(col, row, this.dude.character, 'rope')
-      this.dude.setPosition(col, row);
-      this.obstaclesMazeModel.updateBringFront();
-
-      this.dude.currentFace = this.currentPhase.dudeFacedTo
-      this.dude.setFacedTo(this.currentPhase.dudeFacedTo);
-
-      this.dude.setBatteryLevel(this.currentPhase.batteryLevel, this.currentPhase.maxBatteryLevel);
-      this.dude.setBatteryCostOnMove(this.currentPhase.batteryDecreaseOnEachMove);
-      this.dude.setBatteryGainOnCharge(this.currentPhase.batteryGainOnCapture);
-
-      this.codeEditor.prepare(playPhaseOptions);
-
-      this.currentPhase.showTutorialActionsIfExists();
-      this.addTestCommands(this.currentPhase)
-
-      if (!playPhaseOptions.muteInstructions) {
-        this.messageBox.setMessages(this.currentPhase.messagesBeforeStartPlay);
-      }
-      if (this.gameParams.isAutomaticTesting()) {
-        this.codeEditor.onClickRun()
-      }
+      
     }
 
   }

@@ -49,14 +49,12 @@ export default class MazePhasesLoader {
   async load(gameParams: GameParams): Promise<MazePhasesLoader> {
     this.testApplicationService = new TestApplicationService(gameParams)
     let phases: MazePhasesLoader;
-    let phasePoligon: MazePhasesLoader;
     try {
       if (gameParams.isPlaygroundTest()) {
         phases = await this.loadPlaygroundTestItem();
       }
       if (gameParams.isTestApplication()) {
         phases = this.loadTestApplication();
-        phasePoligon = this.loadTestApplication();
       }
       if (phases == null) {
         throw new Error('empty phases');
@@ -77,6 +75,7 @@ export default class MazePhasesLoader {
     return this
   }
 
+  //aqui é aonde busca do json
   private loadTestApplication(): MazePhasesLoader {
     let items = this.testApplicationService.getNonCompletedTestItems()
     this.phases = items.map((item: TestItem) => {
@@ -114,9 +113,6 @@ export default class MazePhasesLoader {
         this.gridCenterX, this.gridCenterY, this.gridCellWidth
         );
      
-
-
-
       phase.skipPhaseMessage = mecanicaRope.mensagemAoPularFase || DEFAULT_SKIP_MESSAGE
       phase.exitPhaseMessage = mecanicaRope.mensagemAoSairDoJogo || DEFAULT_EXIT_MESSAGE
       phase.restartPhaseMessage = mecanicaRope.mensagemAoReiniciarFase || DEFAULT_RESTART_MESSAGE
@@ -154,8 +150,7 @@ export default class MazePhasesLoader {
 
   getNextPhase(): MazePhase {
     this.currentPhase++
+    console.log('Fase Atual', this.phases[this.currentPhase])
     return this.phases[this.currentPhase]
   }
-
-
 }

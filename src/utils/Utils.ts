@@ -130,16 +130,21 @@ export function androidPlayAudio(sound: string): boolean {
  */
 export function joinChilds<PARENT, CHILD>(parents: Array<PARENT>, fnGetChilds: (p: PARENT) => Array<CHILD>): Array<CHILD> {
   let allChildren = new Array<CHILD>()
+  if (!parents || !fnGetChilds) {
+    return allChildren;
+  }
   parents.forEach(parent => {
-    fnGetChilds(parent).forEach(child => {
+    const children = fnGetChilds(parent) || []; // Garantir que children seja um array
+    children.forEach(child => {
       allChildren.push(child);
     })
   });
   return allChildren
 }
 
+
 export function createJoinArraysFn<PARENT>(functions: Array<() => PARENT[]>): () => Array<PARENT> {
-  return () => joinChilds(functions, (fnThatReturnArray) => fnThatReturnArray())
+  return () => joinChilds(functions, (fnThatReturnArray) => fnThatReturnArray() || [])
 }
 
 export function isDebug(scene: Phaser.Scene) {

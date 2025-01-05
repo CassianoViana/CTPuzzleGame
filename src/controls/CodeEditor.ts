@@ -47,12 +47,12 @@ export default class CodeEditor {
     this.scene = scene;
     this.grid = grid;
     this.scale = grid.scale
-    this.createGlobalDragLogic();
+    //this.createGlobalDragLogic();
 
-    this.createStartStopStepButtons();
-    this.createToolbox();
-    this.createDraggableProgramCommands();
-    this.trash = new Trash(this.scene, this.grid, 17, 2, 8, 7)
+    //this.createStartStopStepButtons();
+    //this.createToolbox();
+    //this.createDraggableProgramCommands();
+    //this.trash = new Trash(this.scene, this.grid, 17, 2, 8, 7)
   }
 
   setOnBlinkBtnStep(onBlink: (blinked: boolean) => void) {

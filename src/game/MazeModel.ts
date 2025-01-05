@@ -18,7 +18,6 @@ export class MazeModelObject {
 
 export default class MazeModel {
 
-
   gameObjects: MazeModelObject[][]
   matrix: Matrix;
   scene: Phaser.Scene;
