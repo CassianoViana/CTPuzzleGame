@@ -51,7 +51,7 @@ export const DEPTH_OVERLAY_PANEL_TUTORIAL = 50
 
 export default class Game extends Scene {
 
-  private currentPolygon: Phaser.GameObjects.Polygon;
+  private polygons: Phaser.GameObjects.Polygon[] = [];
   codeEditor: CodeEditor
   currentObject: GameObjects.Image;
   dude: Dude
@@ -554,19 +554,12 @@ export default class Game extends Scene {
   }
 
   playNextPhase() {
-    debugger
     if (this.currentPhase) {
-      debugger
       this.gameState.setReplayingPhase(this.currentPhase.itemId, false)
     }
-    debugger
     const phase = this.phasesLoader.getNextPhase();
     this.playPhase(phase, { clearCodeEditor: true, clearResponseState: true });
-    //this.desenhaPoligono(phase);
-    debugger
   }
-
-
 
   replayCurrentPhase(options: PlayPhaseOptions =
     {
@@ -577,12 +570,6 @@ export default class Game extends Scene {
     this.playPhase(this.currentPhase, options)
   }
 
-  private clearPolygon() {
-    if (this.currentPolygon) {
-      this.currentPolygon.clear();
-      this.currentPolygon = null;
-    }
-  }
 
   async desenhaPoligonos(phase: MazePhase) {
     this.currentPhase = phase;
@@ -633,7 +620,7 @@ export default class Game extends Scene {
 
     }
   }
-
+  
   async playPhase(phase: MazePhase, playPhaseOptions: PlayPhaseOptions) {
     debugger
     this.playBackgroundMusic()
@@ -659,15 +646,15 @@ export default class Game extends Scene {
     if (this.currentPhase) {
       debugger
       let itemId = this.currentPhase.itemId
+      //Aqui faz a limpeza do response no console
       if (playPhaseOptions.clearResponseState) {
         this.gameState.initializeResponse(itemId);
       }
       this.testApplicationService.saveCurrentPlayingPhase(itemId)
       this.updateLabelCurrentPhase(itemId)
-      //na linha 616 ele busca as informações do poligono
       const MatrixAndTutorials = this.currentPhase.setupMatrixAndTutorials()
-      
-      this.desenhaPoligono(this.currentPhase);
+    
+      //this.desenhaPoligono(this.currentPhase);
       this.desenhaPoligonos(this.currentPhase);
     }
   }
