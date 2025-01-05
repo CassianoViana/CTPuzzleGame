@@ -93,11 +93,20 @@ export default class MazePhasesLoader {
     debugger
     phase.setupTutorialsAndObjectsPositions = () => {
 
+      // Conversão dos polígonos
+      phase.polygons = mecanicaRope.polygons.map(polygon => {
+        return {
+          polygonPoints: polygon.polygonPoints.map(point => ({ x: point.x, y: point.y })),
+          polygonPosition: polygon.polygonPosition.map(position => ({ x: position.x, y: position.y })),
+          polygonColor: polygon.polygonColor
+        };
+      });
+
       phase.polygonPoints = phase.mecanicaRope.polygonPoints.map(p => {
         return { x: p.x, y: p.y }
       })
       debugger
-      
+
       phase.obstacles = new Matrix(
         this.scene,
         MatrixMode.ISOMETRIC,
@@ -105,14 +114,14 @@ export default class MazePhasesLoader {
         this.gridCenterX, this.gridCenterY, this.gridCellWidth
       );
 
-      
+
       phase.ground = new Matrix(
         this.scene,
         MatrixMode.ISOMETRIC,
         phase.mecanicaRope.mapa,
         this.gridCenterX, this.gridCenterY, this.gridCellWidth
-        );
-     
+      );
+
       phase.skipPhaseMessage = mecanicaRope.mensagemAoPularFase || DEFAULT_SKIP_MESSAGE
       phase.exitPhaseMessage = mecanicaRope.mensagemAoSairDoJogo || DEFAULT_EXIT_MESSAGE
       phase.restartPhaseMessage = mecanicaRope.mensagemAoReiniciarFase || DEFAULT_RESTART_MESSAGE
@@ -137,7 +146,7 @@ export default class MazePhasesLoader {
     return phase
   }
 
-  private createHardCodedPhases(testing:boolean): MazePhasesLoader {
+  private createHardCodedPhases(testing: boolean): MazePhasesLoader {
     this.phases = new HardcodedPhasesCreator(
       this.scene,
       this.codeEditor,

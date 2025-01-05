@@ -50,6 +50,8 @@ export default class CodeEditor {
     //this.createGlobalDragLogic();
 
     //this.createStartStopStepButtons();
+    this.createStartStopStepButton();
+
     //this.createToolbox();
     //this.createDraggableProgramCommands();
     //this.trash = new Trash(this.scene, this.grid, 17, 2, 8, 7)
@@ -426,6 +428,16 @@ export default class CodeEditor {
     return new Date().getTime()
   }
 
+  //Aqui é chamado o botão de play
+  private createStartStopStepButton() {
+    this.btnPlay = new Button(this.scene, this.sounds, 0, 0, 'btn-play', () => {
+      this.onClickRun();
+    })
+    this.resetPositionsStartStopStepButton();
+    this.setPlayBtnModeStoppeds();
+  }
+  
+  
   private createStartStopStepButtons() {
     this.btnPlay = new Button(this.scene, this.sounds, 0, 0, 'btn-play', () => {
       this.onClickRun();
@@ -442,6 +454,10 @@ export default class CodeEditor {
     this.setPlayBtnModeStopped();
   }
 
+  resetPositionsStartStopStepButton() {
+    this.grid.placeAt(6.5, 17, this.btnPlay.sprite, 2)
+  }
+
   resetPositionsStartStopStepButtons() {
     this.grid.placeAt(6.5, 17, this.btnPlay.sprite, 2)
     this.grid.placeAt(9, 17, this.btnStep.sprite, 2)
@@ -450,6 +466,13 @@ export default class CodeEditor {
 
   showStopBtnAtLeft() {
     this.grid.placeAt(4, 17, this.btnStop.sprite, 2)
+  }
+
+  setPlayBtnModeStoppeds() {
+    this.resetPositionsStartStopStepButton()
+    this.btnPlay.show()
+    //this.btnStop.hide();
+    //this.unhighlightStepButton();
   }
 
   setPlayBtnModeStopped() {

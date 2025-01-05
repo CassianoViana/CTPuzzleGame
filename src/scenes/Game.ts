@@ -156,6 +156,7 @@ export default class Game extends Scene {
 
     this.createAnimationsAndDefineSpritesByKeys();
 
+    //Aqui identifica que finalizou a fase
     this.obstaclesMazeModel.onChange = () => {
       if (this.obstaclesMazeModel.count('coin') == 0) {
         this.dude.stop(true)
@@ -190,6 +191,7 @@ export default class Game extends Scene {
     }
 
     this.dude = new Dude(this, this.mode, this.sounds, this.grid);
+    this.dude.character.destroy();
     this.dude.character.setScale(this.grid.scale)
     this.dude.character.displayOriginY = this.dude.character.height * 0.65;
 
@@ -282,8 +284,17 @@ export default class Game extends Scene {
     this.createBtnMusic()
     this.createBtnSpeed()
 
+    //Aqui está a lógica de quando o botão de play é clicado
+    //Trocou de fase sem nenhuma validação. Depois eu devo colocar uma validação
     this.codeEditor.onClickRun = () => {
       this.gameState.registerPlayUse()
+      this.sendResponse();
+      this.sendResponse({ setFinished: true })
+      setTimeout(() => {
+        this.playNextPhase();
+      }, 2000);
+
+      /*
       if (this.dude.stepByStep) {
         this.dude.continuePlayingWithoutDebug()
       }
@@ -292,6 +303,7 @@ export default class Game extends Scene {
         this.sendResponse();
         this.dude.execute(this.codeEditor.programs);
       }
+        */
     }
 
     this.codeEditor.onRemoveCommand = (command: Command) => {
@@ -550,7 +562,7 @@ export default class Game extends Scene {
     debugger
     const phase = this.phasesLoader.getNextPhase();
     this.playPhase(phase, { clearCodeEditor: true, clearResponseState: true });
-    this.desenhaPoligono(phase);
+    //this.desenhaPoligono(phase);
     debugger
   }
 
@@ -572,12 +584,41 @@ export default class Game extends Scene {
     }
   }
 
+  async desenhaPoligonos(phase: MazePhase) {
+    this.currentPhase = phase;
+    debugger
+    if (this.currentPhase) {
+      const polygons = this.currentPhase.polygons;
+      polygons.forEach(polygonData => {
+        const points = polygonData.polygonPoints.map(point => ({ x: point.x, y: point.y }));
+        const color = polygonData.polygonColor || 0xB0E0E6; // Default color if not specified
+  
+        if (points.length > 0) {
+          const centerX = points.reduce((sum, point) => sum + point.x, 0) / points.length;
+          const centerY = points.reduce((sum, point) => sum + point.y, 0) / points.length;
+  
+          const polygon = this.add.polygon(centerX, centerY, points, color).setOrigin(0.5, 0.5);
+          polygon.setPosition(polygonData.polygonPosition[0].x, polygonData.polygonPosition[0].y);
+          polygon.setScale(this.grid.scale);
+          this.grid.placeAt(polygonData.polygonPosition[0].x, polygonData.polygonPosition[0].y, polygon);
+        }
+      });
+    }
+  }
+
   async desenhaPoligono(phase: MazePhase) {
     this.currentPhase = phase;
     debugger
     if (this.currentPhase) {
 
       const points = this.currentPhase.polygonPoints;
+      if(points.length == 4){
+        console.log("Poligono")
+      }else{
+        console.log("Triangulo")
+      }
+      console.log("points" + points)
+      console.log("points.length" + points.length)
       if (points && points.length > 0) {
         const centerX = (points[0].x + points[2].x) / 2;
         const centerY = (points[0].y + points[2].y) / 2;
@@ -625,10 +666,10 @@ export default class Game extends Scene {
       this.updateLabelCurrentPhase(itemId)
       //na linha 616 ele busca as informações do poligono
       const MatrixAndTutorials = this.currentPhase.setupMatrixAndTutorials()
-      console.log('MatrixAndTutorials', MatrixAndTutorials)
       
+      this.desenhaPoligono(this.currentPhase);
+      this.desenhaPoligonos(this.currentPhase);
     }
-
   }
 
   private updateLabelCurrentPhase(itemId: number) {

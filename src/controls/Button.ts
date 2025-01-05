@@ -78,6 +78,7 @@ export default class Button implements InterfaceElement {
   hide() {
     this.setVisible(false)
   }
+  
   show() {
     this.setVisible(true)
   }
