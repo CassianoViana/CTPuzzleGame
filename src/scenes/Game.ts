@@ -547,61 +547,109 @@ export default class Game extends Scene {
     this.playPhase(this.currentPhase, options)
   }
 
+  drawDashedLine(graphics, x1, y1, x2, y2, dashLength, gapLength) {
+    const totalLength = Phaser.Math.Distance.Between(x1, y1, x2, y2);
+    const dx = (x2 - x1) / totalLength;
+    const dy = (y2 - y1) / totalLength;
+
+    let currentLength = 0;
+    while (currentLength < totalLength) {
+      const nextLength = Math.min(currentLength + dashLength, totalLength);
+      const startX = x1 + dx * currentLength;
+      const startY = y1 + dy * currentLength;
+      const endX = x1 + dx * nextLength;
+      const endY = y1 + dy * nextLength;
+
+      graphics.moveTo(startX, startY);
+      graphics.lineTo(endX, endY);
+      currentLength += dashLength + gapLength;
+    }
+  }
+
+  async desenhaNovoPoligono(phase: MazePhase) {
+    const graphics = this.add.graphics();
+
+    const pontosDestinos = phase.poligonoDestino.map(point => ({ x: point.x, y: point.y }));
+    const cor = 0xFFC0CB; // Rosa color
+
+    graphics.lineStyle(2, 0x000000); // Define a cor e a espessura do contorno
+
+    const dashLength = 5; // Comprimento do traço
+    const gapLength = 2;   // Comprimento do espaço entre os traços
+
+        // Obtenha a posição da célula na grade
+        const gridPosition = this.grid.getCell(7, 2);
+
+    graphics.beginPath();
+
+    for (let i = 0; i < pontosDestinos.length; i++) {
+      const start = pontosDestinos[i];
+      const end = pontosDestinos[(i + 1) % pontosDestinos.length];
+      this.drawDashedLine(graphics, start.x, start.y, end.x, end.y, dashLength, gapLength);
+    }
+
+    graphics.strokePath();
+
+
+    // Ajuste a escala do gráfico
+    graphics.setScale(this.grid.scale);
+
+    graphics.setPosition(gridPosition.x, gridPosition.y);
+
+
+    const rect = new Phaser.Geom.Polygon(pontosDestinos);
+
+    return { graphics, rect };
+
+  }
+
+  async desenhaPoligonoDestino(phase: MazePhase) {
+    const target = phase.poligonoDestino;
+    if (target) {
+      const points = target.map(point => ({ x: point.x, y: point.y }));
+      const color = 0x00FF00; // Default color if not specified
+
+      if (points.length > 0) {
+        const centerX = points.reduce((sum, point) => sum + point.x, 0) / points.length;
+        const centerY = points.reduce((sum, point) => sum + point.y, 0) / points.length;
+
+        const polygon = this.add.polygon(centerX, centerY, points, color).setOrigin(0.5, 0.5);
+        polygon.setScale(this.grid.scale);
+        this.grid.placeAt(17, 8, polygon);
+      }
+    }
+  }
+
 
   async desenhaPoligonos(phase: MazePhase) {
     this.currentPhase = phase;
     if (this.currentPhase) {
-      const polygons = this.currentPhase.polygons;
+      const polygons = this.currentPhase.poligonos;
       polygons.forEach(polygonData => {
-        const points = polygonData.polygonPoints.map(point => ({ x: point.x, y: point.y }));
-        const color = polygonData.polygonColor || 0xB0E0E6; // Default color if not specified
-  
+        const points = polygonData.pontos.map(point => ({ x: point.x, y: point.y }));
+        const color = polygonData.cor || 0xB0E0E6; // Default color if not specified
+
         if (points.length > 0) {
           const centerX = points.reduce((sum, point) => sum + point.x, 0) / points.length;
           const centerY = points.reduce((sum, point) => sum + point.y, 0) / points.length;
-  
+
           const polygon = this.add.polygon(centerX, centerY, points, color).setOrigin(0.5, 0.5);
-          polygon.setPosition(polygonData.polygonPosition[0].x, polygonData.polygonPosition[0].y);
+          polygon.setPosition(polygonData.posicao[0].x, polygonData.posicao[0].y);
           polygon.setScale(this.grid.scale);
-          this.grid.placeAt(polygonData.polygonPosition[0].x, polygonData.polygonPosition[0].y, polygon);
+          this.grid.placeAt(polygonData.posicao[0].x, polygonData.posicao[0].y, polygon);
         }
       });
     }
   }
 
-  async desenhaPoligono(phase: MazePhase) {
-    this.currentPhase = phase;
-  
-    if (this.currentPhase) {
 
-      const points = this.currentPhase.polygonPoints;
-      if(points.length == 4){
-        console.log("Poligono")
-      }else{
-        console.log("Triangulo")
-      }
-      console.log("points" + points)
-      console.log("points.length" + points.length)
-      if (points && points.length > 0) {
-        const centerX = (points[0].x + points[2].x) / 2;
-        const centerY = (points[0].y + points[2].y) / 2;
-
-        const polygon = this.add.polygon(0 + centerX, 0 + centerX, points, 0xB0E0E6).setOrigin(0.5, 0.5);
-
-        const scale = this.grid.scale;
-        polygon.setScale(scale);
-
-        this.grid.placeAt(3, 12, polygon);
-      }
-
-    }
-  }
-
-  private removePolygons() {
-    const polygons = this.children.list.filter(child => child instanceof Phaser.GameObjects.Polygon);
+  private removePoligonos() {
+    const polygons = this.children.list.filter(child =>
+      child instanceof Phaser.GameObjects.Polygon || child instanceof Phaser.GameObjects.Graphics
+    );
     polygons.forEach(polygon => polygon.destroy());
   }
-  
+
   async playPhase(phase: MazePhase, playPhaseOptions: PlayPhaseOptions) {
     this.playBackgroundMusic()
     if (!phase) {
@@ -632,10 +680,17 @@ export default class Game extends Scene {
       this.testApplicationService.saveCurrentPlayingPhase(itemId)
       this.updateLabelCurrentPhase(itemId)
       const MatrixAndTutorials = this.currentPhase.setupMatrixAndTutorials()
-    
-      //this.desenhaPoligono(this.currentPhase);
-      this.removePolygons();
 
+      //remove os poligonos
+      this.removePoligonos();
+
+      //desenha o target
+      //this.desenhaPoligonoDestino(this.currentPhase);
+
+      //desenha o novo poligono
+      this.desenhaNovoPoligono(this.currentPhase);
+
+      //desenha os poligonos
       this.desenhaPoligonos(this.currentPhase);
     }
   }

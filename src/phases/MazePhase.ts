@@ -17,10 +17,10 @@ export const DEFAULT_SKIP_MESSAGE = 'Você vai pular essa fase?'
 export const DEFAULT_EXIT_MESSAGE = 'Vai sair dessa fase?'
 export const DEFAULT_RESTART_MESSAGE = 'Reiniciar fase?'
 
-class Polygon {
-  polygonPoints: { x: number, y: number } [] = [];
-  polygonPosition: { x: number, y: number } [] = [];
-  polygonColor: string = '';
+class Poligonos {
+  pontos: { x: number, y: number }[] = [];
+  posicao: { x: number, y: number }[] = [];
+  cor: string = '';
 }
 
 export default class MazePhase {
@@ -52,8 +52,8 @@ export default class MazePhase {
   batteryDecreaseOnEachMove: number = 1
   batteryGainOnCapture: number = 1;
   commands: Array<CommandName[]> = [];
-  polygons: Polygon[] = [];
-  polygonPoints: { x: number, y: number }[] = [];
+  poligonos: Poligonos[] = [];
+  poligonoDestino: { x: number, y: number }[] = [];
 
   constructor(scene: Scene, codeEditor: CodeEditor) {
     this.scene = scene;

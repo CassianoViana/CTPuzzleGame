@@ -4,12 +4,11 @@ export type Mapa = "tile" | 'grass' | 'asphalt' | "null"
 export type Face = "up" | "down" | "right" | "left"
 export type Comando = "UP" | "DOWN" | "RIGHT" | "LEFT" | 'PROG_0' | "PROG_1" | 'PROG_2' | 'IF_COIN' | 'IF_BLOCK'
 
-class Polygon {
-  polygonPoints: { x: number, y: number }[] = [];
-  polygonPosition: { x: number, y: number }[] = [];
-  polygonColor: string = '';
+class Poligonos {
+  pontos: { x: number, y: number }[] = [];
+  posicao: { x: number, y: number }[] = [];
+  cor: string = '';
 }
-
 
 export class MecanicaRope {
   mapa: Mapa[][];
@@ -29,8 +28,8 @@ export class MecanicaRope {
   mensagemAoSairDoJogo: string;
   mensagemAoReiniciarFase: string;
   nivelMaximoBateria: number = 10;
-  polygons: Polygon[] = [];
-  polygonPoints: { x: number, y: number }[] = [];
+  poligonos: Poligonos[] = [];
+  poligonoDestino: { x: number, y: number }[] = [];
 }
 
 type Acao = "click" | "drag"

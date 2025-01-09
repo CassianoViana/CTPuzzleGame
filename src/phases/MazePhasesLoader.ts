@@ -92,15 +92,15 @@ export default class MazePhasesLoader {
     phase.setupTutorialsAndObjectsPositions = () => {
 
       // Conversão dos polígonos
-      phase.polygons = mecanicaRope.polygons.map(polygon => {
+      phase.poligonos = mecanicaRope.poligonos.map(polygon => {
         return {
-          polygonPoints: polygon.polygonPoints.map(point => ({ x: point.x, y: point.y })),
-          polygonPosition: polygon.polygonPosition.map(position => ({ x: position.x, y: position.y })),
-          polygonColor: polygon.polygonColor
+          pontos: polygon.pontos.map(point => ({ x: point.x, y: point.y })),
+          posicao: polygon.posicao.map(position => ({ x: position.x, y: position.y })),
+          cor: polygon.cor
         };
       });
 
-      phase.polygonPoints = phase.mecanicaRope.polygonPoints.map(p => {
+      phase.poligonoDestino = phase.mecanicaRope.poligonoDestino.map(p => {
         return { x: p.x, y: p.y }
       })
 
