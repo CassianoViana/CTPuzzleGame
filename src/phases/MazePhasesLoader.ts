@@ -80,7 +80,6 @@ export default class MazePhasesLoader {
     let items = this.testApplicationService.getNonCompletedTestItems()
     this.phases = items.map((item: TestItem) => {
       const mazePhase = this.convertMecanicaRopeToPhase(item.item as MecanicaRope)
-      debugger
       mazePhase.itemId = item.id;
       return mazePhase
     })
@@ -90,7 +89,6 @@ export default class MazePhasesLoader {
   convertMecanicaRopeToPhase(mecanicaRope: MecanicaRope): MazePhase {
     let phase = new MazePhase(this.scene, this.codeEditor);
     phase.mecanicaRope = mecanicaRope;
-    debugger
     phase.setupTutorialsAndObjectsPositions = () => {
 
       // Conversão dos polígonos
@@ -105,7 +103,6 @@ export default class MazePhasesLoader {
       phase.polygonPoints = phase.mecanicaRope.polygonPoints.map(p => {
         return { x: p.x, y: p.y }
       })
-      debugger
 
       phase.obstacles = new Matrix(
         this.scene,

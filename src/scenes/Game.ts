@@ -26,29 +26,6 @@ import Command from '../program/Command'
 
 export const DEPTH_OVERLAY_PANEL_TUTORIAL = 50
 
-/**
- * IDEIAS DO PEDRO
- * - mapa aberto
-- grama
-- textura
-- sol e céu
-- fantasias no rope
--- social
--- chapéu
-- mudar música
-- trocar moedas por fantasia
-
-- tirar o pezinho
-- inimigos
-- bombas
--- tacar bombinhas
-
-- espada no rope
--- espadas
-- arvores
-- apertar
- */
-
 export default class Game extends Scene {
 
   private polygons: Phaser.GameObjects.Polygon[] = [];
@@ -573,7 +550,6 @@ export default class Game extends Scene {
 
   async desenhaPoligonos(phase: MazePhase) {
     this.currentPhase = phase;
-    debugger
     if (this.currentPhase) {
       const polygons = this.currentPhase.polygons;
       polygons.forEach(polygonData => {
@@ -595,7 +571,7 @@ export default class Game extends Scene {
 
   async desenhaPoligono(phase: MazePhase) {
     this.currentPhase = phase;
-    debugger
+  
     if (this.currentPhase) {
 
       const points = this.currentPhase.polygonPoints;
@@ -620,9 +596,13 @@ export default class Game extends Scene {
 
     }
   }
+
+  private removePolygons() {
+    const polygons = this.children.list.filter(child => child instanceof Phaser.GameObjects.Polygon);
+    polygons.forEach(polygon => polygon.destroy());
+  }
   
   async playPhase(phase: MazePhase, playPhaseOptions: PlayPhaseOptions) {
-    debugger
     this.playBackgroundMusic()
     if (!phase) {
       if (this.testApplicationService.isPlayground()) {
@@ -632,7 +612,6 @@ export default class Game extends Scene {
     }
 
     if (phase != this.currentPhase) {
-      debugger
       //this.initializeCodeEditorProgrammingAreas()
     }
 
@@ -655,6 +634,8 @@ export default class Game extends Scene {
       const MatrixAndTutorials = this.currentPhase.setupMatrixAndTutorials()
     
       //this.desenhaPoligono(this.currentPhase);
+      this.removePolygons();
+
       this.desenhaPoligonos(this.currentPhase);
     }
   }
