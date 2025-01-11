@@ -28,7 +28,7 @@ export const DEPTH_OVERLAY_PANEL_TUTORIAL = 50
 
 export default class Game extends Scene {
 
-  private polygons: Phaser.GameObjects.Polygon[] = [];
+  //private polygons: Phaser.GameObjects.Polygon[] = [];
   codeEditor: CodeEditor
   currentObject: GameObjects.Image;
   dude: Dude
@@ -78,6 +78,14 @@ export default class Game extends Scene {
     this.load.image('ballon', 'assets/ct/ballon.png');
     this.load.image('tutorial-block-click-background', 'assets/ct/tutorial-block-click-background.png');
     this.load.image('tutorial-drop-indicator', 'assets/ct/tutorial_drop_indicator.png');
+
+    //novo
+    this.load.spritesheet('btn-play-2', 'assets/ct/giro_teste.png', { frameWidth: 100, frameHeight: 100 });
+    this.load.spritesheet('giro', 'assets/ct/giro_teste.png', { frameWidth: 100, frameHeight: 100 });
+    //giro
+    this.load.spritesheet('giroleft', 'assets/ct/giro_left.png', { frameWidth: 100, frameHeight: 100 });
+    this.load.spritesheet('giroright', 'assets/ct/giro_right.png', { frameWidth: 100, frameHeight: 100 });
+    //
 
     this.load.spritesheet('btn-play', 'assets/ct/btn_play.png', { frameWidth: 100, frameHeight: 100 });
     this.load.spritesheet('btn-exit', 'assets/ct/btn_exit.png', { frameWidth: 81, frameHeight: 96 });

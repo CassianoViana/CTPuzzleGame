@@ -36,6 +36,8 @@ export default class CodeEditor {
   btnStep: Button;
   btnStop: Button;
   btnPlay: Button;
+  btnLeft: Button;
+  btnRight: Button;
   availableCommands: Command[] = [];
   onShowInstruction: (instruction: string) => void = () => { };
   onHideLastInstruction: () => void = () => { };
@@ -433,6 +435,12 @@ export default class CodeEditor {
     this.btnPlay = new Button(this.scene, this.sounds, 0, 0, 'btn-play', () => {
       this.onClickRun();
     })
+    this.btnLeft = new Button(this.scene, this.sounds, 0, 0, 'giroleft', () => {
+      this.onClickRun();
+    })
+    this.btnRight = new Button(this.scene, this.sounds, 0, 0, 'giroright', () => {
+      this.onClickRun();
+    })
     this.resetPositionsStartStopStepButton();
     this.setPlayBtnModeStoppeds();
   }
@@ -455,7 +463,9 @@ export default class CodeEditor {
   }
 
   resetPositionsStartStopStepButton() {
-    this.grid.placeAt(6.5, 17, this.btnPlay.sprite, 2)
+    this.grid.placeAt(6, 17, this.btnPlay.sprite, 2)
+    this.grid.placeAt(9, 17, this.btnLeft.sprite, 2)
+    this.grid.placeAt(11, 17, this.btnRight.sprite, 2)
   }
 
   resetPositionsStartStopStepButtons() {
@@ -471,6 +481,9 @@ export default class CodeEditor {
   setPlayBtnModeStoppeds() {
     this.resetPositionsStartStopStepButton()
     this.btnPlay.show()
+    this.btnLeft.show()
+    this.btnRight.show()
+    //this.btnStep.show()
     //this.btnStop.hide();
     //this.unhighlightStepButton();
   }
