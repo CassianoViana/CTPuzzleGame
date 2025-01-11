@@ -19,6 +19,8 @@ export default class CodeEditor {
   programs: Program[];
   dropZones: SpriteDropZone[]
   onClickRun: () => void = () => { };
+  onRotateLeft: () => void = () => { };
+  onRotateRight: () => void = () => { };
   onEditProgram: () => void = () => { };
   onReplayCurrentPhase: () => void = () => { };
   onInteract: () => void = () => { };
@@ -436,10 +438,10 @@ export default class CodeEditor {
       this.onClickRun();
     })
     this.btnLeft = new Button(this.scene, this.sounds, 0, 0, 'giroleft', () => {
-      this.onClickRun();
+      this.onRotateLeft();
     })
     this.btnRight = new Button(this.scene, this.sounds, 0, 0, 'giroright', () => {
-      this.onClickRun();
+      this.onRotateRight();
     })
     this.resetPositionsStartStopStepButton();
     this.setPlayBtnModeStoppeds();

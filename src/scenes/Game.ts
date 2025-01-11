@@ -30,7 +30,7 @@ export default class Game extends Scene {
 
   //private polygons: Phaser.GameObjects.Polygon[] = [];
   codeEditor: CodeEditor
-  currentObject: GameObjects.Image;
+  poligonoSelecionado: GameObjects.Image;
   dude: Dude
   sounds: Sounds
   cursors: Types.Input.Keyboard.CursorKeys
@@ -79,9 +79,6 @@ export default class Game extends Scene {
     this.load.image('tutorial-block-click-background', 'assets/ct/tutorial-block-click-background.png');
     this.load.image('tutorial-drop-indicator', 'assets/ct/tutorial_drop_indicator.png');
 
-    //novo
-    this.load.spritesheet('btn-play-2', 'assets/ct/giro_teste.png', { frameWidth: 100, frameHeight: 100 });
-    this.load.spritesheet('giro', 'assets/ct/giro_teste.png', { frameWidth: 100, frameHeight: 100 });
     //giro
     this.load.spritesheet('giroleft', 'assets/ct/giro_left.png', { frameWidth: 100, frameHeight: 100 });
     this.load.spritesheet('giroright', 'assets/ct/giro_right.png', { frameWidth: 100, frameHeight: 100 });
@@ -268,6 +265,14 @@ export default class Game extends Scene {
     this.createBtnRestart()
     this.createBtnMusic()
     this.createBtnSpeed()
+
+    this.codeEditor.onRotateLeft = () => {
+        this.poligonoSelecionado.angle += 10;
+    }
+
+    this.codeEditor.onRotateRight = () => {
+        this.poligonoSelecionado.angle -= 10;
+    }
 
     //Aqui está a lógica de quando o botão de play é clicado
     //Trocou de fase sem nenhuma validação. Depois eu devo colocar uma validação
@@ -627,6 +632,20 @@ export default class Game extends Scene {
           polygon.setPosition(polygonData.posicao[0].x, polygonData.posicao[0].y);
           polygon.setScale(this.grid.scale);
           this.grid.placeAt(polygonData.posicao[0].x, polygonData.posicao[0].y, polygon);
+
+          // Adiciona interatividade ao polígono
+          polygon.setInteractive();
+          this.input.setDraggable(polygon);
+          polygon.on('pointerdown', () => {
+            this.poligonoSelecionado = polygon;
+            console.log('Polígono selecionado:', this.poligonoSelecionado);
+          });
+
+          polygon.on('drag', (pointer, dragX, dragY) => {
+            polygon.x = dragX;
+            polygon.y = dragY;
+          });
+
         }
       });
     }
