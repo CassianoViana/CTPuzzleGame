@@ -674,9 +674,6 @@ export default class Game extends Scene {
       //remove os poligonos
       this.removePoligonos();
 
-      //desenha o target
-      //this.desenhaPoligonoDestino(this.currentPhase);
-
       //desenha o novo poligono
       this.desenhaPoligonoDestino(this.currentPhase);
 
