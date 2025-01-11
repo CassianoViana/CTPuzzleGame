@@ -574,7 +574,7 @@ export default class Game extends Scene {
     }
   }
 
-  async desenhaNovoPoligono(phase: MazePhase) {
+  async desenhaPoligonoDestino(phase: MazePhase) {
     const graphics = this.add.graphics();
 
     const pontosDestinos = phase.poligonoDestino.map(point => ({ x: point.x, y: point.y }));
@@ -585,8 +585,8 @@ export default class Game extends Scene {
     const dashLength = 5; // Comprimento do traço
     const gapLength = 2;   // Comprimento do espaço entre os traços
 
-        // Obtenha a posição da célula na grade
-        const gridPosition = this.grid.getCell(7, 2);
+    //Obtenha a posição da célula na grade
+    const gridPosition = this.grid.getCell(7, 2);
 
     graphics.beginPath();
 
@@ -610,24 +610,6 @@ export default class Game extends Scene {
     return { graphics, rect };
 
   }
-
-  async desenhaPoligonoDestino(phase: MazePhase) {
-    const target = phase.poligonoDestino;
-    if (target) {
-      const points = target.map(point => ({ x: point.x, y: point.y }));
-      const color = 0x00FF00; // Default color if not specified
-
-      if (points.length > 0) {
-        const centerX = points.reduce((sum, point) => sum + point.x, 0) / points.length;
-        const centerY = points.reduce((sum, point) => sum + point.y, 0) / points.length;
-
-        const polygon = this.add.polygon(centerX, centerY, points, color).setOrigin(0.5, 0.5);
-        polygon.setScale(this.grid.scale);
-        this.grid.placeAt(17, 8, polygon);
-      }
-    }
-  }
-
 
   async desenhaPoligonos(phase: MazePhase) {
     this.currentPhase = phase;
@@ -696,7 +678,7 @@ export default class Game extends Scene {
       //this.desenhaPoligonoDestino(this.currentPhase);
 
       //desenha o novo poligono
-      this.desenhaNovoPoligono(this.currentPhase);
+      this.desenhaPoligonoDestino(this.currentPhase);
 
       //desenha os poligonos
       this.desenhaPoligonos(this.currentPhase);
