@@ -30,6 +30,7 @@ export class MecanicaRope {
   nivelMaximoBateria: number = 10;
   poligonos: Poligonos[] = [];
   poligonoDestino: { x: number, y: number }[] = [];
+  pontosDestino: { x: number, y: number }[] = [];
 }
 
 type Acao = "click" | "drag"

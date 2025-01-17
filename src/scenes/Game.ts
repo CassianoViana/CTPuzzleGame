@@ -1,5 +1,6 @@
-import { inputHandler }  from './class/InputHandler'
+import { inputHandler } from './class/InputHandler'
 import { fitShape } from './class/fitShape'
+import { positionValidation } from './class/positionValidation'
 import { GameObjects, Types, Scene } from 'phaser'
 import { MatrixMode } from '../geom/Matrix'
 import Dude from '../sprites/Dude'
@@ -30,7 +31,7 @@ export const DEPTH_OVERLAY_PANEL_TUTORIAL = 50
 
 export default class Game extends Scene {
 
-  //private polygons: Phaser.GameObjects.Polygon[] = [];
+
   codeEditor: CodeEditor
   poligonoSelecionado: GameObjects.Image;
   dude: Dude
@@ -48,9 +49,14 @@ export default class Game extends Scene {
   loadingText: GameObjects.Text
   messageBox: MessageBox
   textCurrentPhase: GameObjects.Text
+  shapes: Phaser.GameObjects.Polygon[] = [];
+  private positionValidationInstance: positionValidation;
+
+
 
   constructor() {
     super('game')
+    this.positionValidationInstance = new positionValidation(this);
   }
 
   preload() {
@@ -113,9 +119,11 @@ export default class Game extends Scene {
     this.gameParams = data
     this.testApplicationService = new TestApplicationService(this.gameParams)
     this.gameState = new GameState()
+
   }
 
   async create() {
+
     this.sounds = globalSounds
     this.createGrid(30, 25)
 
@@ -272,34 +280,28 @@ export default class Game extends Scene {
     this.createBtnSpeed()
 
     this.codeEditor.onRotateLeft = () => {
-        this.poligonoSelecionado.angle += 10;
+      this.poligonoSelecionado.angle += 10;
     }
 
     this.codeEditor.onRotateRight = () => {
-        this.poligonoSelecionado.angle -= 10;
+      this.poligonoSelecionado.angle -= 10;
     }
+
+
 
     //Aqui está a lógica de quando o botão de play é clicado
     //Trocou de fase sem nenhuma validação. Depois eu devo colocar uma validação
     this.codeEditor.onClickRun = () => {
-      this.gameState.registerPlayUse()
-      this.sendResponse();
-      this.sendResponse({ setFinished: true })
-      setTimeout(() => {
-        this.playNextPhase();
-      }, 2000);
-
-      /*
-      if (this.dude.stepByStep) {
-        this.dude.continuePlayingWithoutDebug()
+      this.positionValidationInstance.logAllShapesPointsPositions();
+      if(this.validateShapes(this.currentPhase)){
+        this.gameState.registerPlayUse()
+        this.showSuccessMessage();
+      }else{
+        this.showErrorMessage()
       }
-      if (this.dude.stopped) {
-        this.codeEditor.setPlayBtnModePlaying();
-        this.sendResponse();
-        this.dude.execute(this.codeEditor.programs);
-      }
-        */
     }
+
+
 
     this.codeEditor.onRemoveCommand = (command: Command) => {
       this.gameState.registerTrashUse()
@@ -351,14 +353,40 @@ export default class Game extends Scene {
     this.playNextPhase();
   }
 
+  private showErrorMessage() {
+    let messageBox = new MessageBox(this, this.grid, { showCancelButton: false });
+    this.sounds.error();
+    messageBox.setText("Erro! As formas não estão montadas corretamente.");
+    messageBox.onClickOk = () => {
+      messageBox.close();
+    };
+  }
+
+  private showSuccessMessage() {
+    let messageBox = new MessageBox(this, this.grid, { showCancelButton: false });
+    this.sounds.success();
+    messageBox.setText("Parabéns! Você completou a fase!");
+    messageBox.onClickOk = () => {
+      this.sendResponse();
+      this.sendResponse({ setFinished: true })
+      messageBox.close();
+      this.playNextPhase();
+    };
+  }
+
   private createTextCurrentPhase() {
     let cell = this.grid.getCell(0.5, 0.5)
     this.textCurrentPhase =
       this.add.text(cell.x, cell.y, '', { fontFamily: 'Dyuthi, sans-serif' })
         .setScale(this.grid.scale)
-        .setFontStyle('bold')
-        .setTint(0xf6cf55)
+        .setTint(0x640000)
         .setFontSize(35)
+  }
+
+  validateShapes(phase: MazePhase) : boolean {
+    const pontosDestino = phase.pontosDestino.map(point => ({ x: point.x, y: point.y }));
+
+    return this.positionValidationInstance.isShapeInCorrectPosition(pontosDestino);
   }
 
   private createBtnExit() {
@@ -587,30 +615,25 @@ export default class Game extends Scene {
   async desenhaPoligonoDestino(phase: MazePhase) {
     const graphics = this.add.graphics();
 
-    const pontosDestinos = phase.poligonoDestino.map(point => ({ x: point.x, y: point.y }));
-    const cor = 0xFFC0CB; // Rosa color
+    const pontosPoligonoDestinos = phase.poligonoDestino.map(point => ({ x: point.x, y: point.y }));
 
-    graphics.lineStyle(2, 0x000000); // Define a cor e a espessura do contorno
+    graphics.lineStyle(3, 0x640000); // Define a cor e a espessura do contorno
 
     const dashLength = 5; // Comprimento do traço
     const gapLength = 2;   // Comprimento do espaço entre os traços
 
-
     graphics.beginPath();
 
-    for (let i = 0; i < pontosDestinos.length; i++) {
-      const start = pontosDestinos[i];
-      const end = pontosDestinos[(i + 1) % pontosDestinos.length];
+    for (let i = 0; i < pontosPoligonoDestinos.length; i++) {
+      const start = pontosPoligonoDestinos[i];
+      const end = pontosPoligonoDestinos[(i + 1) % pontosPoligonoDestinos.length];
       this.drawDashedLine(graphics, start.x, start.y, end.x, end.y, dashLength, gapLength);
     }
 
     graphics.strokePath();
 
-    // Ajuste a escala do gráfico
-    //graphics.setScale(this.grid.scale);
+    const rect = new Phaser.Geom.Polygon(pontosPoligonoDestinos);
 
-    const rect = new Phaser.Geom.Polygon(pontosDestinos);
-  
     return { graphics, rect };
   }
 
@@ -623,32 +646,26 @@ export default class Game extends Scene {
 
       polygons.forEach(polygonData => {
         const points = polygonData.pontos.map(point => ({ x: point.x, y: point.y }));
+        const positions = polygonData.posicao;
         const color = polygonData.cor || 0xB0E0E6; // Default color if not specified
 
         if (points.length > 0) {
           const centerX = points.reduce((sum, point) => sum + point.x, 0) / points.length;
           const centerY = points.reduce((sum, point) => sum + point.y, 0) / points.length;
 
-          const polygon = this.add.polygon(centerX, centerY, points, color).setOrigin(0.5, 0.5);
-          polygon.setPosition(polygonData.posicao[0].x, polygonData.posicao[0].y);
-          //polygon.setScale(this.grid.scale);
-          this.grid.placeAt(polygonData.posicao[0].x, polygonData.posicao[0].y, polygon);
+          positions.forEach(position => {
+            const polygon = this.add.polygon(position.x + centerX, position.y + centerY, points, color).setOrigin(0.5, 0.5);
 
-          InputHandler.enableDrag(polygon);
-          FitShape.enablePartialFit(polygon, this.currentPhase.poligonoDestino);
+            InputHandler.enableDrag(polygon);
+            FitShape.enablePartialFit(polygon, this.currentPhase.poligonoDestino);
 
-          const cellPosition = this.grid.getCell(polygon.x, polygon.y);
-          const cellArea = this.grid.getArea(polygon.x, polygon.y, polygon.width, polygon.height);
+            polygon.on('pointerdown', () => {
+              this.poligonoSelecionado = polygon;
+              console.log('Polígono selecionado:', this.poligonoSelecionado);
+            });
 
-          console.log(`Posição da célula: (${cellPosition.x}, ${cellPosition.y})`);
-          console.log(`Área da célula: (${cellArea.x}, ${cellArea.y}, ${cellArea.width}, ${cellArea.height})`);
-          console.log('Polígono Scale:', this.grid.scale);
-
-          polygon.on('pointerdown', () => {
-            this.poligonoSelecionado = polygon;
-            console.log('Polígono selecionado:', this.poligonoSelecionado);
+            this.positionValidationInstance.addShape(polygon);
           });
-
         }
       });
     }
@@ -661,6 +678,9 @@ export default class Game extends Scene {
     );
     polygons.forEach(polygon => polygon.destroy());
   }
+
+
+
 
   async playPhase(phase: MazePhase, playPhaseOptions: PlayPhaseOptions) {
     this.playBackgroundMusic()

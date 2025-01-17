@@ -54,6 +54,7 @@ export default class MazePhase {
   commands: Array<CommandName[]> = [];
   poligonos: Poligonos[] = [];
   poligonoDestino: { x: number, y: number }[] = [];
+  pontosDestino: { x: number, y: number }[] = [];
 
   constructor(scene: Scene, codeEditor: CodeEditor) {
     this.scene = scene;

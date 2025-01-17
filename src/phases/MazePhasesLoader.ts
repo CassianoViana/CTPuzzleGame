@@ -104,6 +104,10 @@ export default class MazePhasesLoader {
         return { x: p.x, y: p.y }
       })
 
+      phase.pontosDestino = phase.mecanicaRope.pontosDestino.map(p => {
+        return { x: p.x, y: p.y }
+      })
+
       phase.obstacles = new Matrix(
         this.scene,
         MatrixMode.ISOMETRIC,
