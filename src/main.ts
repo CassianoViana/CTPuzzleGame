@@ -37,8 +37,8 @@ export const Logger = {
 
 export default new Phaser.Game({
   type: Phaser.AUTO,
-  width: width,
-  height: height,
+  width: 1024,
+  height: 768,
   fps: {
     smoothStep: true,
     min: 13,
