@@ -9,8 +9,10 @@ export default class AlignGrid {
   cellWidth: number;
   cellHeight: number;
   graphics: Phaser.GameObjects.Graphics;
-  width: number = 600;
-  height: number = 600;
+  width: number = 1024;
+  height: number = 768;
+  //width: number = 500;
+  //height: number = 500;
   scale: number;
 
   constructor(scene: Scene, cols: number, rows: number, width: number, height: number) {
@@ -60,10 +62,22 @@ export default class AlignGrid {
         const x = i * this.cellWidth + this.cellWidth / 2;
         const y = j * this.cellHeight + this.cellHeight / 2;
         this.scene.add.circle(x, y, 5, 0x0000ff); // Desenha um ponto azul
-        this.scene.add.text(x - 10, y - 10, `${i},${j}`, { color: '#0000ff' }); // Adiciona texto com as coordenadas
+        this.scene.add.text(x, y, `${i},${j}`, { color: '#0000ff' }); // Adiciona texto com as coordenadas
       }
     }
   }
+
+  showPointsEvery50PX() {
+    const spacing = 50;
+    const width = this.scene.game.config.width as number;
+    const height = this.scene.game.config.height as number;
+
+    for (let x = 0; x < width; x += spacing) {
+        for (let y = 0; y < height; y += spacing) {
+            this.scene.add.circle(x, y, 5, 0xff0000); // Adiciona um círculo vermelho com raio 5
+        }
+    }
+}
 
   addImage(x: number, y: number, key: string, colspan: number = null, rowspan: number = null): Phaser.GameObjects.Image {
     let image = this.scene.add.image(0, 0, key);

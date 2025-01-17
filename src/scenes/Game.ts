@@ -1,3 +1,5 @@
+import { inputHandler }  from './class/InputHandler'
+import { fitShape } from './class/fitShape'
 import { GameObjects, Types, Scene } from 'phaser'
 import { MatrixMode } from '../geom/Matrix'
 import Dude from '../sprites/Dude'
@@ -115,13 +117,16 @@ export default class Game extends Scene {
 
   async create() {
     this.sounds = globalSounds
-    this.createGrid(26, 22)
+    this.createGrid(30, 25)
 
-    this.grid = new AlignGrid(this, 26, 22, this.game.config.width as number, this.game.config.height as number);
+    this.grid = new AlignGrid(this, 30, 25, this.game.config.width as number, this.game.config.height as number);
 
-    this.grid.show(0.4);
+    //this.grid.show(0.4);
 
-    this.grid.showPoints();
+    //this.grid.showPoints();
+
+    this.grid.showPointsEvery50PX();
+
 
     this.grid.addImage(0, 0, 'background', this.grid.cols, this.grid.rows);
     this.input.setDefaultCursor('pointer');
@@ -439,9 +444,9 @@ export default class Game extends Scene {
   }
 
   async loadPhases(): Promise<MazePhasesLoader> {
-    let gridCenterX = this.grid.width / 3.2;
-    let gridCenterY = this.grid.height / 2.4;
-    let gridCellWidth = this.grid.cellWidth * 1.1
+    let gridCenterX = this.grid.width;
+    let gridCenterY = this.grid.height;
+    let gridCellWidth = this.grid.cellWidth;
 
     return (await new MazePhasesLoader(
       this,
@@ -590,8 +595,6 @@ export default class Game extends Scene {
     const dashLength = 5; // Comprimento do traço
     const gapLength = 2;   // Comprimento do espaço entre os traços
 
-    //Obtenha a posição da célula na grade
-    const gridPosition = this.grid.getCell(7, 2);
 
     graphics.beginPath();
 
@@ -603,23 +606,21 @@ export default class Game extends Scene {
 
     graphics.strokePath();
 
-
     // Ajuste a escala do gráfico
-    graphics.setScale(this.grid.scale);
-
-    graphics.setPosition(gridPosition.x, gridPosition.y);
-
+    //graphics.setScale(this.grid.scale);
 
     const rect = new Phaser.Geom.Polygon(pontosDestinos);
-
+  
     return { graphics, rect };
-
   }
 
   async desenhaPoligonos(phase: MazePhase) {
     this.currentPhase = phase;
     if (this.currentPhase) {
       const polygons = this.currentPhase.poligonos;
+      const InputHandler = new inputHandler(this);
+      const FitShape = new fitShape(this);
+
       polygons.forEach(polygonData => {
         const points = polygonData.pontos.map(point => ({ x: point.x, y: point.y }));
         const color = polygonData.cor || 0xB0E0E6; // Default color if not specified
@@ -630,20 +631,22 @@ export default class Game extends Scene {
 
           const polygon = this.add.polygon(centerX, centerY, points, color).setOrigin(0.5, 0.5);
           polygon.setPosition(polygonData.posicao[0].x, polygonData.posicao[0].y);
-          polygon.setScale(this.grid.scale);
+          //polygon.setScale(this.grid.scale);
           this.grid.placeAt(polygonData.posicao[0].x, polygonData.posicao[0].y, polygon);
 
-          // Adiciona interatividade ao polígono
-          polygon.setInteractive();
-          this.input.setDraggable(polygon);
+          InputHandler.enableDrag(polygon);
+          FitShape.enablePartialFit(polygon, this.currentPhase.poligonoDestino);
+
+          const cellPosition = this.grid.getCell(polygon.x, polygon.y);
+          const cellArea = this.grid.getArea(polygon.x, polygon.y, polygon.width, polygon.height);
+
+          console.log(`Posição da célula: (${cellPosition.x}, ${cellPosition.y})`);
+          console.log(`Área da célula: (${cellArea.x}, ${cellArea.y}, ${cellArea.width}, ${cellArea.height})`);
+          console.log('Polígono Scale:', this.grid.scale);
+
           polygon.on('pointerdown', () => {
             this.poligonoSelecionado = polygon;
             console.log('Polígono selecionado:', this.poligonoSelecionado);
-          });
-
-          polygon.on('drag', (pointer, dragX, dragY) => {
-            polygon.x = dragX;
-            polygon.y = dragY;
           });
 
         }

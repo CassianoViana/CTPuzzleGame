@@ -44,7 +44,7 @@ export default class EndGame extends Phaser.Scene {
 
   private createGrid() {
     let grid = new AlignGrid(
-      this, 26, 22,
+      this, 30, 25,
       this.game.config.width as number,
       this.game.config.height as number
     );
