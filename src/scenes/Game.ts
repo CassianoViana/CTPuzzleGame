@@ -133,7 +133,7 @@ export default class Game extends Scene {
 
     //this.grid.showPoints();
 
-    this.grid.showPointsEvery50PX();
+    //this.grid.showPointsEvery50PX();
 
 
     this.grid.addImage(0, 0, 'background', this.grid.cols, this.grid.rows);
