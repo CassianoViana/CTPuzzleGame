@@ -20,7 +20,6 @@ import GameState from './GameState'
 import { Mapa, Obstaculo } from '../ct-platform-classes/MecanicaRope'
 import { MyGameObject } from './MyGameObject'
 import { Block } from './Block'
-import { Battery } from './Battery'
 import { Coin } from './Coin'
 import { Tile } from './Tile'
 import MessageBox from '../sprites/MessageBox'
@@ -108,7 +107,6 @@ export default class Game extends Scene {
     this.load.spritesheet('sprite-rope-NORMAL', 'assets/ct/rope_walk_NORMAL.png', { frameWidth: 65, frameHeight: 89 });
     this.load.spritesheet('sprite-rope-ISOMETRIC', 'assets/ct/rope_walk_ISOMETRIC.png', { frameWidth: 97.5, frameHeight: 111 });
     this.load.spritesheet('coin-gold', 'assets/ct/coin_gold.png', { frameWidth: 92, frameHeight: 124 });
-    this.load.spritesheet('battery-sprite', 'assets/ct/battery_sprite.png', { frameWidth: 92, frameHeight: 148 });
     this.load.spritesheet('block-sprite', 'assets/ct/block_sprite.png', { frameWidth: 92, frameHeight: 81 });
     this.load.spritesheet('trash', 'assets/ct/trash.png', { frameWidth: 632, frameHeight: 415 });
     this.load.spritesheet('hand-tutorial', 'assets/ct/hand_tutorial.png', { frameWidth: 134, frameHeight: 176 });
@@ -149,145 +147,20 @@ export default class Game extends Scene {
     this.phasesLoader = await this.loadPhases();
     this.hideLoading();
 
-    this.createAnimationsAndDefineSpritesByKeys();
 
-    //Aqui identifica que finalizou a fase
-    this.obstaclesMazeModel.onChange = () => {
-      if (this.obstaclesMazeModel.count('coin') == 0) {
-        this.dude.stop(true)
-        this.dude.playSuccess();
-        this.codeEditor.unhighlightStepButton();
-        this.sendResponse({ setFinished: true })
-        setTimeout(() => {
-          this.playNextPhase();
-        }, 2000);
-      }
-    }
-
-    this.obstaclesMazeModel.onOverlap = (x: number, y: number, other: MazeModelObject) => {
-      let waitALittleBitBeforeColide = 700
-      let obj = this.obstaclesMazeModel.getObjectAt(y, x);
-      if (other.obstacleName == 'battery') {
-        setTimeout(() => {
-          this.dude.increaseBatteryLevel();
-          this.obstaclesMazeModel.removeAt(y, x, obj);
-          this.sounds.coin();
-        }, waitALittleBitBeforeColide);
-      }
-      if (other.obstacleName == 'coin') {
-        setTimeout(() => {
-          this.obstaclesMazeModel.removeAt(y, x, obj);
-          /* other.setGravityY(-200);
-          other.setVelocityY(-100) */
-          //this.obstaclesMazeModel.onChange()
-          this.sounds.coin();
-        }, waitALittleBitBeforeColide);
-      }
-    }
-
-    this.dude = new Dude(this, this.mode, this.sounds, this.grid);
-    this.dude.character.destroy();
-    this.dude.character.setScale(this.grid.scale)
-    this.dude.character.displayOriginY = this.dude.character.height * 0.65;
-
-    this.dude.canMoveTo = (x: number, y: number) => {
-      let ground = this.currentPhase.ground;
-      let can = true;
-      let point = ground.getPoint(y, x);
-      let modelObject = this.obstaclesMazeModel.getObjectAt(y, x)
-      let isNotHole = ground.getKey(y, x) != 'null';
-      const isNotOutOfBounds = point != null && point
-      const isNotBlock = modelObject?.obstacleName != 'block'
-      can = isNotOutOfBounds && isNotBlock && isNotHole
-      Logger.log('CAN_MOVE_TO [x, y, can]', x, y, can)
-      if (!isNotBlock) {
-        const block = modelObject.myGameObject as Block
-        block.breakMore()
-        if (block.isBroken()) {
-          this.obstaclesMazeModel.remove(modelObject);
-        }
-      }
-      return can
-    }
-
-    this.dude.isConditionValid = (condition: string, dudeMove: DudeMove) => {
-      let valid = true;
-      if (condition.startsWith('if_')) {
-        const command = condition.replace('if_', '');
-        //if (command == 'coin' || command == 'block') {
-        let { x, y } = dudeMove.getAheadPosition();
-        valid = this.obstaclesMazeModel.getObjectNameAt(y, x) == command
-        if (valid) {
-          (this.obstaclesMazeModel.getObjectAt(y, x).myGameObject).setTint(0xccff00);
-        }
-        //}
-      }
-      return valid
-    }
-
-    this.dude.onCompleteMoveCallback = (current: DudeMove) => {
-      this.gameState.pushMove({ x: current.x, y: current.y })
-      if (this.dude.stepByStep) {
-        if (!this.dude.stopped) {
-          this.codeEditor.highlightStepButton();
-          this.currentPhase?.updateTutorial();
-        }
-      }
-      this.obstaclesMazeModel.onChange();
-      //this.mazeModel.updateBringFront();
-    }
-
-    this.dude.onRunOutOfEnergyCallback = () => {
-      this.replayCurrentPhase();
-    }
-
-    this.dude.onTryStartCheckIfHasEnergy = () => {
-      let hasEnergy = this.dude.getBatteryLevel() > 0;
-      this.dude.decreaseBatteryLevel();
-      return hasEnergy;
-    }
-
-    this.dude.onStartMoveCallback = (x: number, y: number, currentDestine: DudeMove) => {
-      this.codeEditor.unhighlightStepButton();
-      this.obstaclesMazeModel.putSprite(x, y, undefined);
-      if (currentDestine) {
-        if (currentDestine.couldExecute) {
-          //this.dude.character.depth = 0;
-          this.obstaclesMazeModel.putSprite(currentDestine.x, currentDestine.y, this.dude.character, 'rope')
-        }
-      }
-      this.obstaclesMazeModel.updateBringFront();
-    }
-
-    this.dude.onFinishWalking = () => {
-      this.codeEditor.setPlayBtnModeStopped();
-      let waitBeforeRestart = 1000
-      if (this.obstaclesMazeModel.count('coin') > 0) {
-        this.dude.stop(true);
-        setTimeout(() => {
-          this.replayCurrentPhase();
-          this.sounds.error();
-        }, waitBeforeRestart)
-      }
-    }
-
-    //this.grid.show(0.3)
     this.createTextCurrentPhase();
     this.createBtnExit()
     this.createBtnJump()
     this.createBtnRestart()
     this.createBtnMusic()
-    this.createBtnSpeed()
 
     this.codeEditor.onRotateLeft = () => {
-      this.poligonoSelecionado.angle += 10;
+      this.poligonoSelecionado.angle += 15;
     }
 
     this.codeEditor.onRotateRight = () => {
-      this.poligonoSelecionado.angle -= 10;
+      this.poligonoSelecionado.angle -= 15;
     }
-
-
 
     //Aqui está a lógica de quando o botão de play é clicado
     //Trocou de fase sem nenhuma validação. Depois eu devo colocar uma validação
@@ -301,17 +174,9 @@ export default class Game extends Scene {
       }
     }
 
-
-
     this.codeEditor.onRemoveCommand = (command: Command) => {
       this.gameState.registerTrashUse()
     }
-
-    /* this.codeEditor.onEditProgram = () => {
-      if (!this.dude.stopped) {
-        this.replayCurrentPhase()
-      }
-    } */
 
     this.codeEditor.onInteract = () => {
       if (!this.dude.stopped) {
@@ -320,26 +185,6 @@ export default class Game extends Scene {
     }
 
     this.codeEditor.onReplayCurrentPhase = () => {
-      this.replayCurrentPhase();
-    }
-
-    //this.codeEditor.setOnBlinkBtnStep((blinked) => {
-    //  this.dude.highlightNextMove(blinked)
-    //})
-
-    this.codeEditor.onClickStepByStep = () => {
-      this.gameState.registerDebugUse()
-      this.sounds.click()
-      this.codeEditor.setPlayBtnModePlaying();
-      this.dude.executeStepByStep(this.codeEditor.programs);
-      this.codeEditor.setPlayBtnModeDebugStoped()
-      this.sendResponse()
-    }
-
-    this.codeEditor.onClickStop = () => {
-      this.gameState.registerStopUse()
-      let resetFace = true;
-      this.dude.stop(resetFace);
       this.replayCurrentPhase();
     }
 
@@ -385,7 +230,6 @@ export default class Game extends Scene {
 
   validateShapes(phase: MazePhase) : boolean {
     const pontosDestino = phase.pontosDestino.map(point => ({ x: point.x, y: point.y }));
-
     return this.positionValidationInstance.isShapeInCorrectPosition(pontosDestino);
   }
 
@@ -442,15 +286,6 @@ export default class Game extends Scene {
     this.grid.placeAt(0.5, 11.5, btn.sprite, 1.3)
   }
 
-  private createBtnSpeed() {
-    let btn = new Button(this, this.sounds, 0, 0, 'btn-speed', () => {
-      let speedFactor = this.dude.toggleSpeedFactor();
-      this.gameState.setSpeedFactor(speedFactor);
-    })
-    const set2x = this.gameState.isSpeedFactorActivated()
-    btn.toggle(set2x)
-    this.grid.placeAt(0.5, 5.5, btn.sprite, 1.3)
-  }
 
   exit() {
     if (this.testApplicationService.isTestApplication()) {
@@ -485,65 +320,6 @@ export default class Game extends Scene {
       gridCenterY,
       gridCellWidth
     ).load(this.gameParams));
-  }
-
-  createAnimationsAndDefineSpritesByKeys() {
-    this.createAnimations()
-    const spriteCreateFunctions = this.createSpriteCreationFunctions();
-    this.groundMazeModel = new MazeModel(this, spriteCreateFunctions, DEPTH_OVERLAY_PANEL_TUTORIAL + 1);
-    this.obstaclesMazeModel = new MazeModel(this, spriteCreateFunctions, DEPTH_OVERLAY_PANEL_TUTORIAL + 100);
-  }
-
-  private createSpriteCreationFunctions() {
-    let scale = this.grid.scale;
-    let spriteCreateFunctions: Map<Obstaculo | Mapa, (x: integer, y: integer) => MyGameObject> = new Map();
-
-    spriteCreateFunctions.set('block', (x: integer, y: integer) => {
-      return new Block(x, y, scale, this)
-    })
-
-    spriteCreateFunctions.set('tile', (x: integer, y: integer) => {
-      return new Tile(x, y, this, scale, 'tile')
-    })
-
-    spriteCreateFunctions.set('grass', (x: integer, y: integer) => {
-      return new Tile(x, y, this, scale, 'grass')
-    })
-
-    spriteCreateFunctions.set('asphalt', (x: integer, y: integer) => {
-      return new Tile(x, y, this, scale, 'asphalt')
-    })
-
-    spriteCreateFunctions.set('battery', (x: integer, y: integer) => {
-      return new Battery(x, y, this, scale, this.currentPhase.batteryGainOnCapture);
-    })
-
-    spriteCreateFunctions.set('coin', (x: integer, y: integer) => {
-      return new Coin(x, y, this, scale);
-    })
-
-    return spriteCreateFunctions;
-  }
-
-  private createAnimations() {
-    this.anims.create({
-      key: 'block-sprite',
-      frames: this.anims.generateFrameNumbers('block-sprite', { start: 0, end: 4 }),
-      frameRate: 0,
-      repeat: 0
-    })
-    this.anims.create({
-      key: 'battery-sprite',
-      frames: this.anims.generateFrameNumbers('battery-sprite', { start: 0, end: 5 }),
-      frameRate: 7,
-      repeat: -1
-    })
-    this.anims.create({
-      key: 'gold-spining',
-      frames: this.anims.generateFrameNumbers('coin-gold', { start: 0, end: 5 }),
-      frameRate: 7,
-      repeat: -1
-    })
   }
 
   private showLoading() {
@@ -754,26 +530,6 @@ export default class Game extends Scene {
         prog2
       ])
     }
-  }
-
-  private addTestCommands(phase: MazePhase) {
-    if (phase) {
-      if (phase.commands) {
-        phase.commands.forEach((commandsRow: CommandName[], index: number) => {
-          let prog = this.codeEditor.programs[index];
-          this.codeEditor.addCommands(prog, commandsRow);
-        })
-      }
-    }
-    // let prog0 = this.codeEditor.programs[0];
-    // let prog1 = this.codeEditor.programs[1];
-    // let prog2 = this.codeEditor.programs[2];
-    // prog0.clear()
-    // prog1.clear()
-    // prog2.clear()
-    // this.codeEditor.addCommands(prog0, ['prog_1', 'prog_0', 'arrow-right'])
-    // this.codeEditor.addCommands(prog1, ['arrow-up'])
-    // this.codeEditor.addCommands(prog2, ['arrow-right', 'arrow-up', 'arrow-up', 'arrow-right', 'prog_1'])
   }
 
   async sendResponse(options:
