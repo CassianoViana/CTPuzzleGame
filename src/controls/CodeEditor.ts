@@ -437,11 +437,11 @@ export default class CodeEditor {
     this.btnPlay = new Button(this.scene, this.sounds, 0, 0, 'btn-play', () => {
       this.onClickRun();
     })
-    this.btnLeft = new Button(this.scene, this.sounds, 0, 0, 'giroleft', () => {
-      this.onRotateLeft();
-    })
     this.btnRight = new Button(this.scene, this.sounds, 0, 0, 'giroright', () => {
       this.onRotateRight();
+    })
+    this.btnLeft = new Button(this.scene, this.sounds, 0, 0, 'giroleft', () => {
+      this.onRotateLeft();
     })
     this.resetPositionsStartStopStepButton();
     this.setPlayBtnModeStoppeds();

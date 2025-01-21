@@ -72,7 +72,6 @@ export default class PreGame extends Phaser.Scene {
       this.game.config.height as number
     );
     this.grid.addImage(0, 0, 'background', this.grid.cols, this.grid.rows);
-    this.grid.addImage(18, 10, 'big-rope', 6);
     this.createLoader();
 
     const isPlaygroundTest = this.testApplicationService.isPlayground();

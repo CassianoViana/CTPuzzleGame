@@ -28,7 +28,7 @@ export default class MessageBox {
     this.scene = scene;
     this.grid = grid;
     this.options = options;
-    this.createBackShadow();
+    //this.createBackShadow();
     this.createMessageBox();
     this.createText()
     this.createOkButton()
@@ -51,7 +51,7 @@ export default class MessageBox {
   }
 
   createOkButton() {
-    let cell = this.options.showCancelButton ? this.grid.getCell(17, 17) : this.grid.getCell(15, 17)
+    let cell = this.options.showCancelButton ? this.grid.getCell(17, 15.5) : this.grid.getCell(17, 15.5)
     let btn = new Button(this.scene, globalSounds, cell.x, cell.y, 'btn-ok', () => {
       this.onClickOk()
       this.showNextMessage()
@@ -62,7 +62,7 @@ export default class MessageBox {
   }
 
   createCancelButton() {
-    let cell = this.grid.getCell(13, 17)
+    let cell = this.grid.getCell(13, 15.5)
     this.onClickCancel = () => {
       this.close()
     }
@@ -115,15 +115,14 @@ export default class MessageBox {
   }
 
   createText() {
-    let point = this.grid.getCell(8.5, 6)
+    let point = this.grid.getCell(4.5, 5)
     this.phrase = this.scene.add.text(point.x, point.y, '', {
       fontFamily: 'Dyuthi, arial',
     })
       .setScale(this.grid.scale)
-      .setFontStyle('bold')
       .setAlign('left')
       .setDepth(303)
-      .setFontSize(40)
+      .setFontSize(50)
       .setTint(0xffffff);
   }
 
@@ -135,7 +134,7 @@ export default class MessageBox {
   private createBackShadow() {
     this.graphicsBackShadow = this.scene.add.graphics();
     this.graphicsBackShadow.depth = 300;
-    this.graphicsBackShadow.fillStyle(0xb97a51);
+    this.graphicsBackShadow.fillStyle(0x000000);
     this.graphicsBackShadow.alpha = 0.6;
     this.graphicsBackShadow.fillRect(0, 0, window.innerWidth, window.innerHeight);
   }

@@ -3,8 +3,6 @@ import { fitShape } from './class/fitShape'
 import { positionValidation } from './class/positionValidation'
 import { GameObjects, Types, Scene } from 'phaser'
 import { MatrixMode } from '../geom/Matrix'
-import Dude from '../sprites/Dude'
-import { DudeMove } from "../sprites/DudeMove"
 import Program from '../program/Program'
 import CodeEditor, { PlayPhaseOptions } from '../controls/CodeEditor'
 import Sounds from '../sounds/Sounds'
@@ -21,7 +19,6 @@ import { Mapa, Obstaculo } from '../ct-platform-classes/MecanicaRope'
 import { MyGameObject } from './MyGameObject'
 import { Block } from './Block'
 import { Coin } from './Coin'
-import { Tile } from './Tile'
 import MessageBox from '../sprites/MessageBox'
 import Button from '../controls/Button'
 import Command from '../program/Command'
@@ -33,7 +30,6 @@ export default class Game extends Scene {
 
   codeEditor: CodeEditor
   poligonoSelecionado: GameObjects.Image;
-  dude: Dude
   sounds: Sounds
   cursors: Types.Input.Keyboard.CursorKeys
   obstaclesMazeModel: MazeModel
@@ -155,11 +151,11 @@ export default class Game extends Scene {
     this.createBtnMusic()
 
     this.codeEditor.onRotateLeft = () => {
-      this.poligonoSelecionado.angle += 15;
+      this.poligonoSelecionado.angle -= 15;
     }
 
     this.codeEditor.onRotateRight = () => {
-      this.poligonoSelecionado.angle -= 15;
+      this.poligonoSelecionado.angle += 15;
     }
 
     //Aqui está a lógica de quando o botão de play é clicado
@@ -178,23 +174,13 @@ export default class Game extends Scene {
       this.gameState.registerTrashUse()
     }
 
-    this.codeEditor.onInteract = () => {
-      if (!this.dude.stopped) {
-        this.replayCurrentPhase()
-      }
-    }
+
 
     this.codeEditor.onReplayCurrentPhase = () => {
       this.replayCurrentPhase();
     }
 
-    this.codeEditor.onShowInstruction = (instruction: string) => {
-      this.dude.setBallonText(instruction);
-    }
 
-    this.codeEditor.onHideLastInstruction = () => {
-      this.dude.hideBallon();
-    }
     this.playNextPhase();
   }
 
@@ -348,9 +334,6 @@ export default class Game extends Scene {
     )
   }
 
-  update() {
-    this.dude?.update()
-  }
 
   playNextPhase() {
     if (this.currentPhase) {
@@ -365,7 +348,6 @@ export default class Game extends Scene {
       clearCodeEditor: this.currentPhase?.isTutorialPhase(),
       muteInstructions: true
     }) {
-    this.dude.stop(true);
     this.playPhase(this.currentPhase, options)
   }
 
